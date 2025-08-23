@@ -1,0 +1,243 @@
+/* Page */
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 3vw, 32px);
+  background-color: #e1b56c; /* coffee theme for desktop/tablet */
+}
+
+/* Card */
+.auth-card {
+  position: relative;                 /* needed for mobile bg overlay */
+  width: 100%;
+  max-width: 1100px;
+  background: #000;
+  color: #e3cfa6;
+  border: 1px solid #ad996b;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  overflow: hidden;
+}
+
+/* Grid */
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr;         /* mobile: stacked (but overridden below) */
+}
+@media (min-width: 768px) {
+  .auth-grid { grid-template-columns: 1fr 1fr; } /* image | form */
+}
+
+/* ---------- MOBILE: make it a full-screen bg auth ---------- */
+@media (max-width: 767px) {
+  /* Remove coffee body look around the card */
+  .auth-page {
+    padding: 0;                /* no outer gap */
+    background-color: transparent;
+  }
+
+  /* Full-screen, edge-to-edge card */
+  .auth-card {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Full-screen background image + dark overlay */
+  .auth-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--mobile-auth-bg); /* set from React inline style */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+  .auth-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);     /* tint for readability */
+    z-index: 0;
+  }
+
+  /* Hide the left visual block on mobile (we use full-card bg instead) */
+  .auth-visual { display: none !important; }
+
+  /* Form sits above overlays and fills height for vertical centering */
+  .auth-panel {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;               /* take full height to center content */
+    display: grid;
+    align-content: center;           /* vertical center */
+    padding: 24px;                   /* comfortable inner spacing */
+  }
+
+  /* Keep one-column layout explicitly on mobile */
+  .auth-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Left image (desktop/tablet): fill its half completely */
+.auth-visual.auth-visual-bg {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;             /* fills left side */
+  background-color: #000;
+}
+@media (min-width: 768px) {
+  .auth-visual.auth-visual-bg { min-height: 520px; }
+}
+
+/* Right panel (desktop: vertically centered) */
+.auth-panel {
+  padding: clamp(20px, 3vw, 36px);
+  display: grid;
+  gap: 14px;
+  align-content: center;
+}
+@media (max-width: 767px) {
+  /* already set above for mobile full-screen */
+}
+
+.auth-title {
+  margin: 0 0 2px;
+  font-size: clamp(1.3rem, 1.2rem + 1vw, 1.8rem);
+  font-weight: 800;
+  color: #e9dbb4;
+}
+
+/* Tabs */
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+.auth-tab {
+  background: #23222a;
+  color: #d6c291;
+  border: 1px solid #ad996b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: background .25s ease;
+}
+.auth-tab.active { background: #2d2d31; }
+
+/* Form */
+.auth-form { display: grid; gap: 14px; }
+.form-group { display: grid; gap: 6px; }
+
+label {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #e9dbb4;
+}
+input {
+  padding: 10px 12px;
+  background: #121214;
+  color: #f4edd9;
+  border: 1px solid #3b3a31;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+input::placeholder { color: #a49a82; }
+input:focus {
+  border-color: #ad996b;
+  box-shadow: 0 0 0 3px rgba(173,153,107,.25);
+}
+.hint { margin: 4px 0 0; font-size: .8rem; color: #b8ab8a; }
+
+/* Messages */
+.error   { margin: 2px 0 0; color: #ffb4b4; font-size: .85rem; font-weight: 600; }
+.success { margin-top: 10px; color: #b6f0b6; font-weight: 700; }
+
+/* Submit */
+.submit-btn {
+  margin-top: 4px;
+  padding: 10px 16px;
+  border: 1px solid #ad996b;
+  border-radius: 8px;
+  font-weight: 700;
+  color: #e8d9b1;
+  background: #2d2d31;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+.submit-btn:hover { background: #3a3a3f; }
+.submit-btn:active { transform: translateY(1px); }
+
+/* Tiny screens */
+@media (max-width: 480px) {
+  .auth-panel { padding: 16px; }
+  .auth-tab { padding: 8px 10px; font-size: .95rem; }
+}
+/* Prevent Chrome autofill from turning inputs white */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #121214 inset !important; /* same as input bg */
+  -webkit-text-fill-color: #f4edd9 !important;                /* keep your text color */
+  caret-color: #f4edd9;                                       /* blinking cursor color */
+  border: 1px solid #3b3a31;                                  /* keep border consistent */
+}
+
+/* ================== Autofill: kill the white flash ================== */
+
+/* Base (you already have similar values; repeating here for clarity) */
+input {
+  background-color: #121214;
+  color: #f4edd9;
+}
+
+/* Chrome / Edge (Blink/WebKit) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  /* Paint over the autofill's white/yellow with your input bg */
+  -webkit-box-shadow: 0 0 0 1000px #121214 inset !important;
+  box-shadow:        0 0 0 1000px #121214 inset !important;
+
+  /* Keep text/caret colors consistent */
+  -webkit-text-fill-color: #f4edd9 !important;
+  caret-color: #f4edd9;
+
+  /* This prevents the initial flash by delaying autofill bg transitions */
+  transition: background-color 99999s ease-in-out 0s, 
+              color 99999s ease-in-out 0s;
+}
+
+/* Firefox */
+input:-moz-autofill {
+  box-shadow: inset 0 0 0 1000px #121214 !important;
+  -moz-text-fill-color: #f4edd9 !important;
+  caret-color: #f4edd9;
+}
+
+/* Optional: keep border consistent during autofill */
+input:-webkit-autofill,
+input:-moz-autofill {
+  border: 1px solid #3b3a31 !important;
+}
+
+/* (Optional) If you see the white flash only on focus, keep focus styles aligned */
+input:focus {
+  background-color: #121214;
+  color: #f4edd9;
+}

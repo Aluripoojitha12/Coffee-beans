@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Base fill ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Coffee background */
+body {
+  background-color: #e1b56c;
+}
+
+/* ===================== HERO ===================== */
+.hero {
+  position: relative;                 /* so header can overlay */
+  background-color: #000;             /* black hero bg */
+  min-height: 70vh;
+  display: flex;
+  align-items: stretch;
+
+  /* page side gaps (responsive) so body bg shows */
+  margin-left: clamp(1rem, 4vw, 3rem);
+  margin-right: clamp(1rem, 4vw, 3rem);
+
+  border-radius: 12px;
+  overflow: hidden;                   /* clip image to rounded corners */
+  /* create space for the overlaid header */
+  padding-top: 64px;                  /* ≈ header height (tuned in media queries) */
+}
+
+/* Container uses grid; stacks on small, 50/50 on md+ */
+.hero-container {
+  display: grid;
+  grid-template-columns: 1fr;         /* mobile: stack */
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  align-items: stretch;
+  min-height: calc(70vh - 64px);      /* fill remaining hero height */
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+/* Text column */
+.hero-text {
+  color: #e3cfa6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;                 /* keep centered at ALL sizes */
+  text-align: center;
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 3rem) clamp(1rem, 2.5vw, 2rem);
+}
+
+.hero-text h1 {
+  font-weight: 800;
+  line-height: 1.15;
+  /* fluid type between ~32px and ~56px */
+  font-size: clamp(2rem, 4vw + 0.5rem, 3.5rem);
+  margin: 0;
+}
+
+/* CTA — centered under the text */
+.hero-btn {
+  display: inline-block;
+  margin: 0 auto;                     /* center under the text block */
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #ad996b;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #ad996b;
+  background: #23222a;
+  transition: background 0.25s ease, transform 0.1s ease;
+  width: auto;                         /* ensure not stretched */
+  cursor: pointer;
+}
+.hero-btn:hover { background: #2d2d31; }
+.hero-btn:active { transform: translateY(1px); }
+
+/* Image column */
+.hero-image {
+  position: relative;
+  width: 100%;
+}
+.hero-image img {
+  position: absolute;
+  inset: 0;                           /* fill the cell */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                   /* cover entire right side */
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* ===================== BREAKPOINTS ===================== */
+
+/* ≥ 768px (md) — 50/50 split, keep text & button centered */
+@media (min-width: 768px) {
+  .hero { padding-top: 72px; }
+  .hero-container { grid-template-columns: 1fr 1fr; } /* 50/50 split */
+  .hero-text { align-items: center; text-align: center; } /* <-- keep centered */
+}
+
+/* ≥ 1024px (lg) — more breathable hero */
+@media (min-width: 1024px) {
+  .hero { min-height: 72vh; }
+}
+
+/* ≤ 767px (mobile): hide the hero image completely */
+@media (max-width: 767px) {
+  .hero-image { display: none; }
+  .hero-container { grid-template-columns: 1fr; } /* single column */
+  .hero { padding-top: 60px; } /* slightly smaller header clearance */
+}
+
+/* =======================================================
+   PROMO SECTION (background image + overlay, separate CSS)
+   ======================================================= */
+
+.promo {
+  position: relative;
+  width: 100%;
+  /* show body coffee bg at sides (same margins as hero) */
+  margin-left: clamp(1rem, 4vw, 3rem);
+  margin-right: clamp(1rem, 4vw, 3rem);
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+
+  min-height: 380px;                  /* default height; grows with content */
+  border-radius: 12px;
+  overflow: hidden;                   /* clip bg to rounded corners */
+
+  /* Optional subtle ring like hero */
+  box-shadow: 0 0 0 1px rgba(173,153,107,0.35) inset;
+}
+
+/* Background image via CSS var from component */
+.promo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--promo-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Dark overlay for contrast */
+.promo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);       /* adjust opacity as needed */
+  z-index: 0;
+}
+
+/* Content wrapper */
+.promo-inner {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-align: center;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  min-height: 380px;                  /* vertically centers content */
+}
+
+/* Title & text */
+.promo-title {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.15;
+  font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.75rem);
+  color: #fff7e0;
+}
+
+.promo-text {
+  margin: 0;
+  max-width: 56ch;
+  color: #f1e9d0;
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.125rem);
+}
+
+/* CTA button */
+.promo-cta {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid #ad996b;
+  background: rgba(35,34,42,0.75);
+  color: #f7eac6;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .25s ease, transform .1s ease;
+}
+.promo-cta:hover { background: rgba(45,45,49,0.9); }
+.promo-cta:active { transform: translateY(1px); }
+
+/* Larger screens: make section a little taller */
+@media (min-width: 1024px) {
+  .promo { min-height: 460px; }
+  .promo-inner { min-height: 460px; }
+}
+
