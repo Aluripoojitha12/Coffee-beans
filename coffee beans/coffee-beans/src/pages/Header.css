@@ -1,4 +1,9 @@
-/* Header sits inside hero top (same as before) */
+/* ==== Theme quick toggle ==== */
+/* Coffee badge color (default). To use RED badge, just change --badge-bg to #e53935 */
+/* :root { --badge-bg: #ad996b; }  */
+:root { --badge-bg: #e53935; } 
+
+/* Header container */
 .header {
   position: absolute;
   top: 12px;
@@ -9,24 +14,27 @@
   z-index: 20;
 }
 
-/* Main bar */
+/* Bar */
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   width: 100%;
   max-width: 1280px;
   margin-left: clamp(1rem, 4vw, 3rem);
   margin-right: clamp(1rem, 4vw, 3rem);
-
   padding: 8px 16px;
-
-  border: 1px solid #ad996b;  /* gold border */
+  border: 1px solid #ad996b;
   background: #23222a;
   border-radius: 6px;
   color: #d6c291;
   box-sizing: border-box;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* login → cart → burger */
 }
 
 /* Logo */
@@ -41,7 +49,7 @@
   font-size: 0.85rem;
 }
 
-/* Desktop nav (hidden on mobile) */
+/* Desktop nav */
 .header-nav {
   display: none;
   gap: clamp(12px, 3vw, 32px);
@@ -61,7 +69,7 @@
 }
 .header-link:hover { color: #fff3d0; }
 
-/* Desktop login (hidden on mobile) */
+/* Login button */
 .header-login {
   display: none;
   border: 1px solid #ad996b;
@@ -76,60 +84,142 @@
 }
 .header-login:hover { background: rgba(173,153,107,0.15); }
 
-/* Hamburger button (shown on mobile) */
-.header-burger {
+/* Cart button sits to the RIGHT of login */
+.header-cart {
+  position: relative;
   display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 34px;
+  border: 1px solid #ad996b;
+  border-radius: 4px;
+  color: #d6c291;
+  text-decoration: none;
+}
+.header-cart:hover { background: rgba(173,153,107,0.15); }
+.cart-icon { display: block; }
+
+/* Colored numeric badge (coffee or red via --badge-bg) */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  color: #111;          /* contrast on coffee gold */
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Hamburger -> transforms to X when open */
+.header-burger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 34px;
   border: 1px solid #ad996b;
   border-radius: 4px;
   background: transparent;
   cursor: pointer;
+  color: #d6c291;
 }
 .burger-line {
+  position: absolute;
   width: 20px;
   height: 2px;
-  background: #d6c291;
+  background: currentColor;
+  transition: transform .25s ease, opacity .2s ease;
 }
+.burger-line:nth-child(1) { transform: translateY(-6px); }
+.burger-line:nth-child(2) { transform: translateY(0); }
+.burger-line:nth-child(3) { transform: translateY(6px); }
+.header-burger.is-open .burger-line { opacity: 0; }
 
-/* Mobile dropdown panel */
+.burger-x {
+  position: absolute;
+  width: 18px; height: 18px;
+  opacity: 0; transition: opacity .2s ease;
+}
+.header-burger.is-open .burger-x { opacity: 1; }
+
+/* Mobile dropdown: smooth slide down */
 .mobile-panel {
-  display: none;
   max-width: 1280px;
-
   margin-left: clamp(1rem, 4vw, 3rem);
   margin-right: clamp(1rem, 4vw, 3rem);
-
   border: 1px solid #ad996b;
-  border-top: none;                  /* attaches to the bar */
+  border-top: none;
   background: #23222a;
   color: #d6c291;
   border-radius: 0 0 6px 6px;
   overflow: hidden;
+
+  /* slide effect */
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height .35s ease, opacity .25s ease, transform .25s ease;
 }
+.header.open .mobile-panel {
+  max-height: 320px;     /* big enough for all links */
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .mobile-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 12px 16px;
   text-decoration: none;
   color: #d6c291;
   font-weight: 600;
-  border-top: 1px solid #3a382f;     /* subtle separators */
+  border-top: 1px solid #3a382f;
 }
 .mobile-link:hover { background: rgba(173,153,107,0.12); }
 .mobile-login { border-top-color: #ad996b; }
 
-/* When open, show the panel */
-.header.open + .mobile-panel { display: block; }
+.mobile-cart-count {
+  margin-left: 8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  color: #111;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
 
-/* ===== Breakpoint: show desktop, hide hamburger ===== */
+/* ===== Breakpoints ===== */
+@media (min-width: 480px) {
+  .header-inner { padding: 10px 16px; }
+}
 @media (min-width: 768px) {
   .header { top: 16px; }
   .header-inner { padding: 10px 18px; }
-
   .header-nav { display: flex; }
   .header-login { display: inline-flex; }
-
+  .header-cart { display: inline-flex; }
   .header-burger { display: none; }
-  .mobile-panel { display: none !important; } /* never show on desktop */
+  /* desktop: mobile drawer never visible */
+  .mobile-panel { display: none; }
+}
+@media (min-width: 1280px) {
+  .header-inner { padding: 12px 20px; }
 }

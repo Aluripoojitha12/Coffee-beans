@@ -10,7 +10,7 @@ import footerBg from "../assets/footer1.jpg"; // 👈 new footer background
 /* NEW: assets for the promo section */
 import promoBg from "../assets/beansbg_mbl3.jpg"; // background for the 2nd section
 import welcomeImg from "../assets/white_cup_with_beans.png"; // left image in promo
-
+import { Link } from "react-router-dom";
 const Home: React.FC = () => {
   return (
     <main className="w-full overflow-hidden m-0 p-0">
@@ -24,24 +24,26 @@ const Home: React.FC = () => {
 
       {/* HERO (black card) */}
       <section className="hero relative">
-        {/* Header sits on top of the hero */}
-        <Header />
+      {/* Header sits on top of the hero */}
+      <Header />
 
-        <div className="hero-container">
-          {/* Left 50%: text */}
-          <div className="hero-text">
-            <h1>
-              START YOUR DAY <br /> WITH COFFEE
-            </h1>
+      <div className="hero-container">
+        {/* Left 50%: text */}
+        <div className="hero-text">
+          <h1>
+            START YOUR DAY <br /> WITH COFFEE
+          </h1>
+          <Link to="/products">
             <button className="hero-btn">Order now</button>
-          </div>
-
-          {/* Right 50%: image (hidden on mobile via CSS) */}
-          <div className="hero-image">
-            <img src={heroImg} alt="Coffee with cookies" draggable={false} />
-          </div>
+          </Link>
         </div>
-      </section>
+
+        {/* Right 50%: image (hidden on mobile via CSS) */}
+        <div className="hero-image">
+          <img src={heroImg} alt="Coffee with cookies" draggable={false} />
+        </div>
+      </div>
+    </section>
 
       {/* ===== 2) PROMO SECTION (WELCOME) ===== */}
       <section
@@ -91,29 +93,39 @@ const Home: React.FC = () => {
                 {
                   id: "ethiopia",
                   name: "Ethiopia Roast",
-                  image: product1, // product1 image
+                  image: product1,
                   priceIndividual: 12.5,
                   priceBulk: 10.99,
                   blurb: "Floral • Citrus • Honey",
+                  rating: 5,
                 },
                 {
                   id: "colombia",
                   name: "Colombia Supremo",
-                  image: product2, // product2 image
+                  image: product2,
                   priceIndividual: 11.75,
                   priceBulk: 9.95,
                   blurb: "Caramel • Nutty • Smooth",
+                  rating: 4,
                 },
                 {
                   id: "house",
                   name: "House Blend",
-                  image: product3, // product3 image
+                  image: product3,
                   priceIndividual: 10.5,
                   priceBulk: 8.99,
                   blurb: "Balanced • Everyday Cup",
+                  rating: 5,
                 },
               ]}
             />
+
+            {/* Centered View More button */}
+            <div className="products-more">
+              <Link to="/products" className="view-more-btn">
+                View more
+              </Link>
+            </div>
           </div>
         </div>
       </section>
