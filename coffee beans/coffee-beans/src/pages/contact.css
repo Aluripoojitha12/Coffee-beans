@@ -1,0 +1,208 @@
+:root {
+  /* Light coffee palette */
+  --coffee-hero-1: #b08a6a;      /* cappuccino gradient start */
+  --coffee-hero-2: #8f6b52;      /* cappuccino gradient end   */
+  --coffee-card:   #a37b5a;      /* milk coffee for info card */
+  --coffee-ink:    #3a2a22;      /* dark cocoa text           */
+  --coffee-bg:     #f6f2ee;      /* cream page background     */
+  --coffee-accent: #e3b679;      /* caramel accent            */
+  --coffee-ring:   rgba(143,107,82,0.28);
+  --coffee-border: #e6d9cf;
+
+  /* Input styling (requested) */
+  --input-bg: #ffffff;   /* keep normal white bg */
+  --input-fg: #a37b5a;   /* 🔶 requested text color */
+  --input-border: #dccdc2;
+  --input-focus: var(--coffee-hero-2);
+}
+
+.container { width: min(1100px, 92%); margin-inline: auto; }
+
+/* ===== HERO with VIDEO ===== */
+.contact-hero {
+  position: relative;
+  width: 100%;
+  padding: 56px 0 64px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #fff;
+}
+.contact-hero__video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.contact-hero__overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(18,12,9,0.55) 0%, rgba(18,12,9,0.65) 100%);
+}
+.contact-hero__inner { position: relative; z-index: 1; text-align: center; }
+.hero-center { text-align: center; }
+.contact-hero h1 {
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800; letter-spacing: 0.3px;
+}
+.breadcrumb { margin-top: 10px; opacity: 0.95; display: inline-flex; gap: 10px; align-items: center; }
+.crumb-link { color: #ffffff; text-decoration: underline; text-underline-offset: 3px; }
+.crumb-link:hover { opacity: 0.9; }
+.breadcrumb span { opacity: 0.8; }
+
+/* ===== WRAP ===== */
+.contact-wrap { background: var(--coffee-bg); padding: clamp(28px,4vw,56px) 0 72px; }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(20px, 3vw, 44px);
+  align-items: start;
+}
+
+/* ===== LEFT FORM ===== */
+.form-col .eyebrow {
+  color: #7b6a60;
+  letter-spacing: .14em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.headline {
+  margin: 0 0 22px;
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 800;
+  color: var(--coffee-ink);
+}
+.headline .accent { color: var(--coffee-accent); font-style: italic; }
+
+/* Keep your form card */
+.form {
+  background: #fff;
+  border-radius: 16px;
+  padding: clamp(16px, 2.6vw, 22px);
+  border: 1px solid var(--coffee-border);
+  box-shadow: 0 10px 34px rgba(58,42,34,0.08);
+  color-scheme: light;           /* ✅ prevent UA dark autofill */
+}
+
+.row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+.row.two { grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--coffee-ink);
+  margin-bottom: 6px;
+}
+
+/* ===== INPUTS: keep normal bg, set text color, fix autofill ===== */
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  background: var(--input-bg);          /* ✅ stays white */
+  color: var(--input-fg);               /* ✅ #f4edd9 text */
+  outline: none;
+  transition: border .2s, box-shadow .2s, transform .02s;
+  caret-color: #ffffff;
+}
+.field textarea { resize: vertical; }
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #6b5a4f; /* your original placeholder tone */
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--coffee-ring);
+}
+
+/* === Autofill fixes (Chrome/Edge/Brave/Safari) === */
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus,
+.field textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--input-fg) !important;  /* keep text color */
+  transition: background-color 9999s ease-out 0s !important;
+  box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;  /* keep white bg */
+  -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+  border: 1px solid var(--input-border) !important;
+}
+
+/* === Firefox autofill === */
+.field input:-moz-autofill,
+.field textarea:-moz-autofill {
+  box-shadow: 0 0 0px 1000px var(--input-bg) inset !important; /* keep white bg */
+  -moz-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+  color: var(--input-fg) !important;                            /* keep text color */
+}
+
+/* Submit */
+.actions { margin-top: 12px; }
+.send-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: none; border: none; cursor: pointer;
+  font-weight: 800; color: var(--coffee-ink);
+}
+.send-btn .circle {
+  display: inline-grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 999px;
+  background: #2e2019; color: #fff; transition: transform .15s ease;
+}
+.send-btn .text {
+  background: var(--coffee-accent); color: #1b1b1b;
+  padding: 12px 18px; border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(227,182,121,0.35);
+}
+.send-btn:hover .circle { transform: translateX(3px) scale(1.03); }
+
+/* ===== RIGHT CARD ===== */
+.info-card {
+  position: relative;
+  background: var(--coffee-card);
+  color: #fff9f5;
+  border-radius: 22px;
+  padding: 18px;
+}
+.card-inner { padding: clamp(16px, 2.6vw, 22px); }
+.block { margin-bottom: 22px; }
+.block h3 { margin: 0 0 8px; font-size: 16px; color: #fff; }
+.muted { color: #fff1e8; line-height: 1.65; }
+.card-bullets {
+  position: absolute; right: 14px; top: 12px;
+  display: flex; gap: 8px; opacity: .6; font-size: 14px;
+}
+
+.social { display: flex; gap: 12px; margin-top: 8px; }
+.social a {
+  display: inline-grid; place-items: center;
+  width: 40px; height: 40px; border-radius: 999px;
+  background: var(--coffee-accent); color: #1a1a1a; font-size: 16px;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  box-shadow: 0 6px 14px rgba(227,182,121,0.35);
+}
+.social a:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1080px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 24px; }
+  .info-card { order: 2; }
+  .form-col { order: 1; }
+}
+@media (max-width: 720px) {
+  .row.two { grid-template-columns: 1fr; }
+  .contact-hero { padding: 44px 0 52px; }
+  .contact-hero h1 { font-size: clamp(24px, 5vw, 34px); }
+  .send-btn .text { padding: 10px 14px; }
+  .send-btn .circle { width: 40px; height: 40px; }
+}
+
+/* Footer full-bleed override for this page */
+.pp-footer-override .footer-section,
+.pp-footer-override .footer-card {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}

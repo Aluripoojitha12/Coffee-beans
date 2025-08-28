@@ -1,0 +1,48 @@
+{
+  "coupons": [
+    {
+      "code": "bean10",
+      "description": "10% off subtotal",
+      "discountPercent": 10,
+      "target": "subtotal"
+    },
+    {
+      "code": "ship50",
+      "description": "50% off shipping",
+      "discountPercent": 50,
+      "target": "shipping"
+    },
+    {
+      "code": "freeship",
+      "description": "Free standard shipping",
+      "discountPercent": 100,
+      "target": "shipping"
+    }
+  ],
+
+  "deliveryOptions": [
+    { "id": "std", "label": "Standard — $7.90", "fee": 7.9 },
+    { "id": "exp", "label": "Express — $12.50", "fee": 12.5 }
+  ],
+
+  "orders": [],
+
+  "products": [
+    {
+      "id": "espresso1",
+      "name": "Espresso Roast",
+      "priceIndividual": 12.5,
+      "priceBulk": 10.0,
+      "image": "/images/espresso.png",
+      "tags": ["best", "coffee", "beans"]
+    },
+    {
+      "id": "latte1",
+      "name": "Latte Blend",
+      "priceIndividual": 14.0,
+      "priceBulk": 11.5,
+      "image": "/images/latte.png",
+      "tags": ["new", "beans"]
+    }
+  ]
+}

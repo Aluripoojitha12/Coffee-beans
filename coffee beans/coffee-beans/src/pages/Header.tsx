@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Header.css";
-
+import { Link } from "react-router-dom";
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -28,15 +28,18 @@ const Header: React.FC = () => {
     <header className={`header ${open ? "open" : ""}`}>
       <div className="header-inner" ref={panelRef}>
         {/* Logo */}
-        <a href="/" className="header-logo">LOGO HERE</a>
+        <Link to="/" className="header-logo">LOGO HERE</Link>
 
         {/* Desktop nav */}
-        <nav className="header-nav">
-          <a href="/" className="header-link">HOME</a>
-          <a href="/about" className="header-link">ABOUT</a>
-          <a href="/blogs" className="header-link">BLOGS</a>
-          <a href="/contact" className="header-link">CONTACT</a>
-        </nav>
+        {/* import { Link } from "react-router-dom"; */}
+
+<nav className="header-nav">
+  <Link to="/" className="header-link">HOME</Link>
+  <Link to="/products" className="header-link">PRODUCTS</Link>
+  <Link to="/cart" className="header-link">CART</Link>
+  <Link to="/contact" className="header-link">CONTACT</Link>
+</nav>
+
 
         {/* Desktop login */}
         <a href="/auth" className="header-login">LOG IN</a>
