@@ -38,6 +38,8 @@ export default function ContactForm() {
   return (
     <>
       <Header />
+      {/* 👉 Spacer to prevent header overlap on mobile (same utility used on Products/Cart) */}
+      <div className="page-header-spacer" aria-hidden />
 
       <div className="pp-footer-override">
         {/* ===== HERO (video background) ===== */}

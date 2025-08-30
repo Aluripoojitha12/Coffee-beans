@@ -206,3 +206,15 @@
   margin-right: 0 !important;
   width: 100% !important;
 }
+
+/* ---- Header spacer utility (mobile only) ---- */
+:root { --header-height: 64px; }     /* tweak if your header is taller on phones */
+
+.page-header-spacer { display: none; }
+
+@media (max-width: 767px) {
+  .page-header-spacer {
+    display: block;
+    height: var(--header-height, 64px);  /* pushes page down under the header */
+  }
+}

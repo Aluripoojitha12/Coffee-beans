@@ -1,6 +1,6 @@
 // ---------- ProductsGrid component ----------
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "../cart/CartContext";
 
@@ -16,8 +16,37 @@ type Product = {
 
 type Mode = "individual" | "bulk";
 
+// 👇 auth/session helpers
+const SESSION_KEY = "auth_session";
+function isAuthed() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    return !!s?.userId;
+  } catch {
+    return false;
+  }
+}
+function stashPendingAdd(payload: any) {
+  sessionStorage.setItem("pendingAdd", JSON.stringify(payload));
+}
+function takePendingAdd() {
+  const raw = sessionStorage.getItem("pendingAdd");
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    sessionStorage.removeItem("pendingAdd");
+    return parsed;
+  } catch {
+    sessionStorage.removeItem("pendingAdd");
+    return null;
+  }
+}
+
 const ProductsGrid: React.FC<{ items: Product[] }> = ({ items }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { add } = useCart(); // expects Omit<CartLine,"qty"> & { qty: number }
 
   const [forms, setForms] = React.useState<
@@ -25,6 +54,24 @@ const ProductsGrid: React.FC<{ items: Product[] }> = ({ items }) => {
   >(() =>
     Object.fromEntries(items.map((p) => [p.id, { qty: "1", mode: "individual" as Mode }]))
   );
+
+  // 👇 resume pending add if user just logged in
+  useEffect(() => {
+    const pending = takePendingAdd();
+    if (pending && isAuthed() && pending.source === "products-grid") {
+      const l = pending.line;
+      add({
+        id: l.id,
+        name: l.name,
+        image: l.image,
+        unitPriceIndividual: l.unitPriceIndividual,
+        unitPriceBulk: l.unitPriceBulk,
+        qty: l.qty,
+        mode: l.mode,
+      });
+      navigate("/cart");
+    }
+  }, [add, navigate]);
 
   function setQty(id: string, v: string) {
     const numeric = v.replace(/[^\d]/g, "");
@@ -47,6 +94,7 @@ const ProductsGrid: React.FC<{ items: Product[] }> = ({ items }) => {
   const incQty = (id: string) => changeQty(id, +1);
   const decQty = (id: string) => changeQty(id, -1);
 
+  // 👇 guard add-to-cart
   function addToCart(p: Product) {
     const f = forms[p.id];
     const qtyNum = Number(f.qty);
@@ -55,7 +103,7 @@ const ProductsGrid: React.FC<{ items: Product[] }> = ({ items }) => {
       return;
     }
 
-    add({
+    const line = {
       id: p.id,
       name: p.name,
       image: p.image,
@@ -63,9 +111,19 @@ const ProductsGrid: React.FC<{ items: Product[] }> = ({ items }) => {
       unitPriceBulk: p.priceBulk,
       mode: f.mode,
       qty: qtyNum,
-    });
+    };
 
-    navigate("/cart");
+    if (isAuthed()) {
+      add(line);
+      navigate("/cart");
+    } else {
+      stashPendingAdd({
+        line,
+        returnTo: location.pathname + location.search,
+        source: "products-grid",
+      });
+      navigate(`/auth?next=${encodeURIComponent(location.pathname + location.search)}`);
+    }
   }
 
   return (

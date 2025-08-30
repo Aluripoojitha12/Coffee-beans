@@ -1,11 +1,40 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { PRODUCTS } from "../data/products";
 import { useCart } from "../cart/CartContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";   // 👈 added useLocation
 import heroImg from "../assets/hero3.jpg";
 import Header from "./Header";                        // src/pages/Header.tsx
 import Footer from "../components/footer/footer";      // src/components/footer/footer.tsx
 import "./products.css";
+
+// 👇 new utils for auth check + stash
+const SESSION_KEY = "auth_session";
+function isAuthed() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    return !!s?.userId;
+  } catch {
+    return false;
+  }
+}
+
+function stashPendingAdd(payload: any) {
+  sessionStorage.setItem("pendingAdd", JSON.stringify(payload));
+}
+function takePendingAdd() {
+  const raw = sessionStorage.getItem("pendingAdd");
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    sessionStorage.removeItem("pendingAdd");
+    return parsed;
+  } catch {
+    sessionStorage.removeItem("pendingAdd");
+    return null;
+  }
+}
 
 type TabKey = "new" | "best" | "top";
 
@@ -46,6 +75,7 @@ function exactN<T extends { id: string }>(list: T[], n: number, pool: T[]) {
 
 export default function ProductsPage() {
   const nav = useNavigate();
+  const loc = useLocation();                          // 👈 added
   const { add } = useCart();
   const { all, newArrivals, bestSellers, topRated } = useMemo(buildCollections, []);
   const [tab, setTab] = useState<TabKey>("best");
@@ -55,6 +85,44 @@ export default function ProductsPage() {
   const nineTop  = useMemo(() => exactN(topRated, 9, all), [topRated, all]);
 
   const list = tab === "new" ? nineNew : tab === "best" ? nineBest : nineTop;
+
+  // 👇 resume pending add if user just logged in
+  useEffect(() => {
+    const pending = takePendingAdd();
+    if (pending && isAuthed() && pending.source === "products-page") {
+      const l = pending.line;
+      add({
+        id: l.id,
+        name: l.name,
+        image: l.image,
+        unitPriceIndividual: l.unitPriceIndividual,
+        unitPriceBulk: l.unitPriceBulk,
+        qty: l.qty,
+        mode: l.mode,
+      });
+      nav("/cart");
+    }
+  }, [add, nav]);
+
+  // 👇 guard add-to-cart
+  const guardAdd = (line: {
+    id: string; name: string; image: string;
+    unitPriceIndividual: number; unitPriceBulk: number;
+    qty: number; mode: "individual" | "bulk";
+  }) => {
+    if (isAuthed()) {
+      add(line);
+      nav("/cart");
+      return;
+    }
+    // not logged in → stash and go to auth
+    stashPendingAdd({
+      line,
+      returnTo: loc.pathname + loc.search,
+      source: "products-page",
+    });
+    nav(`/auth?next=${encodeURIComponent(loc.pathname + loc.search)}`);
+  };
 
   return (
     <>
@@ -124,7 +192,7 @@ export default function ProductsPage() {
                 priceBulk={p.priceBulk}
                 blurb={p.blurb}
                 onAdd={(qty, mode) => {
-                  add({
+                  const line = {
                     id: p.id,
                     name: p.name,
                     image: p.image,
@@ -132,8 +200,8 @@ export default function ProductsPage() {
                     unitPriceBulk: p.priceBulk,
                     qty,
                     mode,
-                  });
-                  nav("/cart");
+                  };
+                  guardAdd(line); // 👈 use guard
                 }}
               />
             ))}

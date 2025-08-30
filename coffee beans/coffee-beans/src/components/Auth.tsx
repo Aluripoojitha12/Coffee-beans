@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";   // 👈 added useLocation
 import "./auth.css";
 import heroSide from "../assets/hero1.jpg";       // desktop/tablet left image
 import mobileImg from "../assets/beansbg_mbl3.jpg"; // mobile-specific image
@@ -60,10 +60,10 @@ function validateSignup(values: {
 // ---------- "JSON backend" using localStorage ----------
 type StoredUser = {
   id: string;
-  fullName: string;          // optional for login users created earlier
-  email: string;             // original-case email
-  emailLower: string;        // compare by lowercase
-  password: string;          // demo only (plaintext). Replace with hash in real app.
+  fullName: string;
+  email: string;
+  emailLower: string;
+  password: string;
   createdAt: string;
 };
 
@@ -99,7 +99,7 @@ function createUser(fullName: string, email: string, password: string): StoredUs
     fullName,
     email,
     emailLower: email.trim().toLowerCase(),
-    password, // DEMO ONLY
+    password,
     createdAt: new Date().toISOString(),
   };
   const users = loadUsers();
@@ -130,6 +130,7 @@ function startSession(user: StoredUser) {
 // ---------- Component ----------
 const Auth: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();                   // 👈 added
   const [tab, setTab] = useState<"login" | "signup">("login");
 
   // Login
@@ -146,6 +147,12 @@ const Auth: React.FC = () => {
   });
   const [signupErrors, setSignupErrors] = useState<Record<string, string>>({});
   const [signupMessage, setSignupMessage] = useState("");
+
+  // helper to know where to go after login/signup
+  const getNext = () => {
+    const params = new URLSearchParams(location.search);
+    return params.get("next") || "/";
+  };
 
   // ----- Submit handlers -----
   const onLoginSubmit = (e: React.FormEvent) => {
@@ -166,7 +173,8 @@ const Auth: React.FC = () => {
 
     startSession(user);
     setLoginMessage("✅ Logged in successfully! Redirecting…");
-    setTimeout(() => navigate("/"), 900);
+    const next = getNext();                         // 👈 use next param
+    setTimeout(() => navigate(next), 900);
   };
 
   const onSignupSubmit = (e: React.FormEvent) => {
@@ -174,7 +182,6 @@ const Auth: React.FC = () => {
     setSignupMessage("");
     const errs = validateSignup(signupValues);
 
-    // Email uniqueness
     const existing = findUserByEmail(signupValues.email);
     if (!errs.email && existing) {
       errs.email = "This email already exists. Try logging in.";
@@ -190,29 +197,26 @@ const Auth: React.FC = () => {
     );
     startSession(newUser);
     setSignupMessage("✅ Account created! Redirecting…");
-    setTimeout(() => navigate("/"), 900);
+    const next = getNext();                         // 👈 use next param
+    setTimeout(() => navigate(next), 900);
   };
 
-  // Mobile background image is passed to CSS via variable
   return (
     <main className="auth-page">
       <section
         className="auth-card auth-grid"
         style={{ ["--mobile-auth-bg" as any]: `url(${mobileImg})` }}
       >
-        {/* Left visual (desktop/tablet) */}
         <div
           className="auth-visual auth-visual-bg"
           style={{ backgroundImage: `url(${heroSide})` }}
         />
 
-        {/* Right: forms */}
         <div className="auth-panel">
           <h1 className="auth-title">
             {tab === "login" ? "Welcome back" : "Create your account"}
           </h1>
 
-          {/* Tabs */}
           <div className="auth-tabs">
             <button
               className={`auth-tab ${tab === "login" ? "active" : ""}`}

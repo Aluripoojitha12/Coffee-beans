@@ -358,6 +358,10 @@
   padding: 24px;
   text-align: center;
 }
+.cart-page .cart-empty .start-shopping {
+  margin-top: 8px;
+  text-decoration: none;
+}
 
 /* features bar */
 .cart-page .cart-features {
@@ -403,3 +407,30 @@
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
+
+/* ---- Header spacer utility (mobile only) ---- */
+:root { --header-height: 64px; }     /* tweak if your header is taller on phones */
+
+.page-header-spacer { display: none; }
+
+@media (max-width: 767px) {
+  .page-header-spacer {
+    display: block;
+    height: var(--header-height, 64px);  /* pushes page down under the header */
+  }
+}
+
+/* =========================
+   Small additions for UX
+   ========================= */
+.sidebar-empty {
+  text-align: center;
+}
+.sidebar-empty .go-shopping {
+  background: var(--bean-accent);
+  border-color: var(--bean-accent);
+  color: #fff;
+  margin-top: 6px;
+  text-decoration: none;
+}
+

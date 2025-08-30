@@ -28,6 +28,8 @@ export default function CartPage() {
     clearCoupon,
   } = useCart();
 
+  const isEmpty = lines.length === 0; // 👈 NEW: drives hide/show of right sidebar
+
   // --- UI state (right column) ---
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState<null | { ok: boolean; text: string }>(null);
@@ -168,6 +170,8 @@ export default function CartPage() {
     <>
       {/* ----- Header ----- */}
       <Header />
+      {/* 👉 Spacer to prevent header overlap on mobile (uses .page-header-spacer CSS utility) */}
+      <div className="page-header-spacer" aria-hidden />
 
       {/* ----- Coffee Hero (title + breadcrumb) ----- */}
       <section className="cart-hero">
@@ -195,6 +199,7 @@ export default function CartPage() {
             {lines.length === 0 ? (
               <div className="cart-empty">
                 <p>Your cart is empty.</p>
+                {/* <Link to="/products" className="btn start-shopping">Start Shopping</Link> */}
               </div>
             ) : (
               <div className="cart-card">
@@ -299,190 +304,209 @@ export default function CartPage() {
 
           {/* ---------- Right: Sidebar ---------- */}
           <aside className="cart-right">
-            {/* Coupons */}
-            <section className="panel">
-              <h3 className="panel-title">Coupons</h3>
-              <div className="coupon-row">
-                <input
-                  type="text"
-                  placeholder="Coupon code"
-                  className="input"
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                />
-                <button className="btn apply" onClick={handleApplyCoupon}>
-                  Apply Now
-                </button>
-                {totals.activeCoupon && (
-                  <button className="btn" onClick={handleRemoveCoupon} style={{ marginLeft: 8 }}>
-                    Remove
-                  </button>
-                )}
-              </div>
-              {couponMsg && (
-                <p className={`coupon-msg ${couponMsg.ok ? "ok" : "err"}`}>{couponMsg.text}</p>
-              )}
-            </section>
-
-            {/* Your Order */}
-            <section className="panel">
-              <h3 className="panel-title">Your Order</h3>
-
-              {/* Subtotal rows */}
-              <div className="row">
-                <span>
-                  Subtotal ({lines.length} {lines.length === 1 ? "item" : "items"})
-                </span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-
-              {totals.activeCoupon?.target === "subtotal" &&
-                totals.couponAmountOnSubtotal > 0 && (
-                  <div className="row">
-                    <span>Coupon ({totals.activeCoupon?.code})</span>
-                    <span>- ${totals.couponAmountOnSubtotal.toFixed(2)}</span>
-                  </div>
-                )}
-
-              <div className="row">
-                <span>Subtotal after coupon</span>
-                <span>${subtotalAfterCoupon.toFixed(2)}</span>
-              </div>
-
-              {/* Delivery */}
-              <div className="block">
-                <div className="row row-head">Delivery</div>
-
-                <label className="choice">
-                  <input
-                    type="radio"
-                    name="delivery"
-                    checked={deliveryMode === "delivery"}
-                    onChange={() => setDeliveryMode("delivery")}
-                  />
-                  <span>Delivery</span>
-                  <span className="spacer" />
-                  <span className="muted">${deliveryFee.toFixed(2)}</span>
-                </label>
-
-                <label className="choice">
-                  <input
-                    type="radio"
-                    name="delivery"
-                    checked={deliveryMode === "pickup"}
-                    onChange={() => setDeliveryMode("pickup")}
-                  />
-                  <span>Pick Up</span>
-                  <span className="spacer" />
-                  <span className="muted">Free</span>
-                </label>
-
-                {deliveryMode === "delivery" && (
-                  <div className="select-row">
-                    <select
-                      className="select"
-                      value={String(deliveryFee)}
-                      onChange={(e) => setDeliveryFee(parseFloat(e.target.value))}
-                    >
-                      {(deliveryOptions.length
-                        ? deliveryOptions
-                        : [
-                            { id: "std", label: "Standard — $7.90", fee: 7.9 },
-                            { id: "exp", label: "Express — $12.50", fee: 12.5 },
-                          ]
-                      ).map((opt) => (
-                        <option key={opt.id} value={opt.fee}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              {/* Shipping coupon row (if any) */}
-              {shippingCouponAmount > 0 && (
-                <div className="row">
-                  <span>Shipping coupon ({totals.activeCoupon?.code})</span>
-                  <span>- ${shippingCouponAmount.toFixed(2)}</span>
-                </div>
-              )}
-
-              <div className="row">
-                <span>Delivery after coupon</span>
-                <span>${deliveryFeeAfterCoupon.toFixed(2)}</span>
-              </div>
-
-              {/* Tip */}
-              <div className="block">
-                <div className="row row-head">Tip</div>
-
-                <div className="tip-presets">
-                  {[0, 2, 4, 7].map((p) => (
+            {isEmpty ? (
+              // 👇 When cart is empty, hide checkout details and show a light prompt instead
+              <section className="panel sidebar-empty">
+                <h3 className="panel-title">Nothing to checkout (yet!)</h3>
+                <p className="muted">
+                  Add some beans to see delivery options, coupons, totals, and checkout here.
+                </p>
+                <Link to="/products" className="btn go-shopping">Browse Products</Link>
+              </section>
+            ) : (
+              <>
+                {/* Coupons */}
+                <section className="panel">
+                  <h3 className="panel-title">Coupons</h3>
+                  <div className="coupon-row">
+                    <input
+                      type="text"
+                      placeholder="Coupon code"
+                      className="input"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                    />
                     <button
-                      key={p}
-                      className={`pill ${tipPreset === p && !tipCustom ? "active" : ""}`}
-                      onClick={() => {
-                        setTipPreset(p as TipPreset);
-                        setTipCustom("");
-                      }}
+                      className="btn apply"
+                      onClick={handleApplyCoupon}
+                      disabled={!couponInput.trim()}
+                      aria-disabled={!couponInput.trim()}
+                      title={!couponInput.trim() ? "Enter a coupon code" : "Apply coupon"}
                     >
-                      {p === 0 ? "0%" : `${p}%`}
+                      Apply Now
                     </button>
-                  ))}
-                </div>
+                    {totals.activeCoupon && (
+                      <button className="btn" onClick={handleRemoveCoupon} style={{ marginLeft: 8 }}>
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  {couponMsg && (
+                    <p className={`coupon-msg ${couponMsg.ok ? "ok" : "err"}`}>{couponMsg.text}</p>
+                  )}
+                </section>
 
-                <div className="tip-custom">
-                  <span className="muted">$</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={0.5}
-                    placeholder="Custom tip"
-                    className="input compact"
-                    value={tipCustom}
-                    onChange={(e) => setTipCustom(e.target.value)}
-                  />
-                </div>
+                {/* Your Order */}
+                <section className="panel">
+                  <h3 className="panel-title">Your Order</h3>
 
-                <div className="row">
-                  <span>Tip amount</span>
-                  <span>${tipAmount.toFixed(2)}</span>
-                </div>
-              </div>
+                  {/* Subtotal rows */}
+                  <div className="row">
+                    <span>
+                      Subtotal ({lines.length} {lines.length === 1 ? "item" : "items"})
+                    </span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
 
-              {/* Fees & tax */}
-              <div className="row">
-                <span>Service Fee</span>
-                <span>${SERVICE_FEE.toFixed(2)}</span>
-              </div>
+                  {totals.activeCoupon?.target === "subtotal" &&
+                    totals.couponAmountOnSubtotal > 0 && (
+                      <div className="row">
+                        <span>Coupon ({totals.activeCoupon?.code})</span>
+                        <span>- ${totals.couponAmountOnSubtotal.toFixed(2)}</span>
+                      </div>
+                    )}
 
-              <div className="row">
-                <span>Tax</span>
-                <span>${tax.toFixed(2)}</span>
-              </div>
+                  <div className="row">
+                    <span>Subtotal after coupon</span>
+                    <span>${subtotalAfterCoupon.toFixed(2)}</span>
+                  </div>
 
-              <label className="choice">
-                <input
-                  type="checkbox"
-                  checked={useCredits}
-                  onChange={(e) => setUseCredits(e.target.checked)}
-                />
-                <span>Use Bean Credits</span>
-                <span className="spacer" />
-                <span className="muted">-${creditsValue.toFixed(2)}</span>
-              </label>
+                  {/* Delivery */}
+                  <div className="block">
+                    <div className="row row-head">Delivery</div>
 
-              {/* Total */}
-              <div className="total-row">
-                <span>Total Payable</span>
-                <span className="total">${totalPayable.toFixed(2)}</span>
-              </div>
+                    <label className="choice">
+                      <input
+                        type="radio"
+                        name="delivery"
+                        checked={deliveryMode === "delivery"}
+                        onChange={() => setDeliveryMode("delivery")}
+                      />
+                      <span>Delivery</span>
+                      <span className="spacer" />
+                      <span className="muted">${deliveryFee.toFixed(2)}</span>
+                    </label>
 
-              <button className="btn checkout" onClick={checkout}>
-                Proceed to Checkout
-              </button>
-            </section>
+                    <label className="choice">
+                      <input
+                        type="radio"
+                        name="delivery"
+                        checked={deliveryMode === "pickup"}
+                        onChange={() => setDeliveryMode("pickup")}
+                      />
+                      <span>Pick Up</span>
+                      <span className="spacer" />
+                      <span className="muted">Free</span>
+                    </label>
+
+                    {deliveryMode === "delivery" && (
+                      <div className="select-row">
+                        <select
+                          className="select"
+                          value={String(deliveryFee)}
+                          onChange={(e) => setDeliveryFee(parseFloat(e.target.value))}
+                        >
+                          {(deliveryOptions.length
+                            ? deliveryOptions
+                            : [
+                                { id: "std", label: "Standard — $7.90", fee: 7.9 },
+                                { id: "exp", label: "Express — $12.50", fee: 12.5 },
+                              ]
+                          ).map((opt) => (
+                            <option key={opt.id} value={opt.fee}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Shipping coupon row (if any) */}
+                  {shippingCouponAmount > 0 && (
+                    <div className="row">
+                      <span>Shipping coupon ({totals.activeCoupon?.code})</span>
+                      <span>- ${shippingCouponAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+
+                  <div className="row">
+                    <span>Delivery after coupon</span>
+                    <span>${deliveryFeeAfterCoupon.toFixed(2)}</span>
+                  </div>
+
+                  {/* Tip */}
+                  <div className="block">
+                    <div className="row row-head">Tip</div>
+
+                    <div className="tip-presets">
+                      {[0, 2, 4, 7].map((p) => (
+                        <button
+                          key={p}
+                          className={`pill ${tipPreset === p && !tipCustom ? "active" : ""}`}
+                          onClick={() => {
+                            setTipPreset(p as TipPreset);
+                            setTipCustom("");
+                          }}
+                        >
+                          {p === 0 ? "0%" : `${p}%`}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="tip-custom">
+                      <span className="muted">$</span>
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.5}
+                        placeholder="Custom tip"
+                        className="input compact"
+                        value={tipCustom}
+                        onChange={(e) => setTipCustom(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="row">
+                      <span>Tip amount</span>
+                      <span>${tipAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Fees & tax */}
+                  <div className="row">
+                    <span>Service Fee</span>
+                    <span>${SERVICE_FEE.toFixed(2)}</span>
+                  </div>
+
+                  <div className="row">
+                    <span>Tax</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+
+                  <label className="choice">
+                    <input
+                      type="checkbox"
+                      checked={useCredits}
+                      onChange={(e) => setUseCredits(e.target.checked)}
+                    />
+                    <span>Use Bean Credits</span>
+                    <span className="spacer" />
+                    <span className="muted">-${creditsValue.toFixed(2)}</span>
+                  </label>
+
+                  {/* Total */}
+                  <div className="total-row">
+                    <span>Total Payable</span>
+                    <span className="total">${totalPayable.toFixed(2)}</span>
+                  </div>
+
+                  <button className="btn checkout" onClick={checkout}>
+                    Proceed to Checkout
+                  </button>
+                </section>
+              </>
+            )}
           </aside>
         </div>
 

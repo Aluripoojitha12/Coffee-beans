@@ -223,3 +223,92 @@
 @media (min-width: 1280px) {
   .header-inner { padding: 12px 20px; }
 }
+
+/* ========== MOBILE-ONLY FIXES (full-width pill + dropdown) ========== */
+@media (max-width: 767px) {
+  /* Header fills the top */
+  .header {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    width: 100%;
+    display: block;    /* stack bar + menu vertically */
+    z-index: 20;
+  }
+
+  /* Pill stretches across, with same side gaps */
+  .header-inner {
+    width: auto;
+    margin-left: clamp(1rem, 4vw, 1.5rem);
+    margin-right: clamp(1rem, 4vw, 1.5rem);
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between; /* logo on left, actions on right */
+  }
+
+  /* Dropdown: full width under pill */
+  .mobile-panel {
+    position: static;  /* flows directly under header-inner */
+    display: block;
+    margin-left: clamp(1rem, 4vw, 1.5rem);
+    margin-right: clamp(1rem, 4vw, 1.5rem);
+    border-left: 1px solid #ad996b;
+    border-right: 1px solid #ad996b;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    z-index: 30;
+  }
+
+  /* Links stretch full width, left-aligned text */
+  .mobile-link {
+    text-align: left;
+    padding: 12px 16px;
+  }
+
+  /* Small tidy-ups */
+  .header-actions { gap: 8px; }
+  .header-logo,
+  .header-login { font-size: 0.8rem; padding: 6px 10px; }
+  .header-cart,
+  .header-burger { width: 34px; height: 32px; }
+  .burger-line { width: 18px; }
+}
+
+/* ===== Mobile Dropdown • GLASS look ===== */
+@media (max-width: 767px) {
+  .mobile-panel {
+    background: rgba(28,27,32,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(214,194,145,0.35);
+    border-top: 1px solid rgba(214,194,145,0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
+    animation: dropGlass .28s ease;
+  }
+
+  .mobile-link {
+    position: relative;
+    padding: 14px 16px;
+    color: #e7dab6;
+    border-top: 1px solid rgba(214,194,145,0.18);
+    transition: background .25s ease, transform .2s ease;
+  }
+  .mobile-link:first-child { border-top: 0; }
+  .mobile-link:hover {
+    background: rgba(214,194,145,0.10);
+    transform: translateX(2px);
+  }
+  .mobile-link::after {
+    content: "›";
+    font-weight: 700;
+    opacity: .6;
+    margin-left: auto;
+  }
+}
+
+@keyframes dropGlass {
+  from { opacity:0; transform: translateY(-8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
