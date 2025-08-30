@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { PRODUCTS } from "../data/products";
 import { useCart } from "../cart/CartContext";
-import { useNavigate, useLocation } from "react-router-dom";   // 👈 added useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import heroImg from "../assets/hero3.jpg";
-import Header from "./Header";                        // src/pages/Header.tsx
-import Footer from "../components/footer/footer";      // src/components/footer/footer.tsx
+import Header from "./Header";
+import Footer from "../components/footer/footer";
 import "./products.css";
 
-// 👇 new utils for auth check + stash
+// Auth session utils
 const SESSION_KEY = "auth_session";
 function isAuthed() {
   try {
@@ -19,7 +19,6 @@ function isAuthed() {
     return false;
   }
 }
-
 function stashPendingAdd(payload: any) {
   sessionStorage.setItem("pendingAdd", JSON.stringify(payload));
 }
@@ -48,7 +47,7 @@ function buildCollections() {
 
   const newArrivals = all.filter((p) => hasTag(p, "new", "new arrival", "new-arrival"));
   const bestSellers = all.filter((p) => hasTag(p, "best", "bestseller", "best seller"));
-  const topRated    = all.filter((p) => hasTag(p, "top", "top rated", "top-rated"));
+  const topRated = all.filter((p) => hasTag(p, "top", "top rated", "top-rated"));
 
   const fallback = (mod: number) => all.filter((_, i) => i % 3 === mod);
 
@@ -56,7 +55,7 @@ function buildCollections() {
     all,
     newArrivals: newArrivals.length ? newArrivals : fallback(0),
     bestSellers: bestSellers.length ? bestSellers : fallback(1),
-    topRated:    topRated.length ? topRated : fallback(2),
+    topRated: topRated.length ? topRated : fallback(2),
   };
 }
 
@@ -75,18 +74,18 @@ function exactN<T extends { id: string }>(list: T[], n: number, pool: T[]) {
 
 export default function ProductsPage() {
   const nav = useNavigate();
-  const loc = useLocation();                          // 👈 added
+  const loc = useLocation();
   const { add } = useCart();
   const { all, newArrivals, bestSellers, topRated } = useMemo(buildCollections, []);
   const [tab, setTab] = useState<TabKey>("best");
 
-  const nineNew  = useMemo(() => exactN(newArrivals, 9, all), [newArrivals, all]);
+  const nineNew = useMemo(() => exactN(newArrivals, 9, all), [newArrivals, all]);
   const nineBest = useMemo(() => exactN(bestSellers, 9, all), [bestSellers, all]);
-  const nineTop  = useMemo(() => exactN(topRated, 9, all), [topRated, all]);
+  const nineTop = useMemo(() => exactN(topRated, 9, all), [topRated, all]);
 
   const list = tab === "new" ? nineNew : tab === "best" ? nineBest : nineTop;
 
-  // 👇 resume pending add if user just logged in
+  // resume pending add
   useEffect(() => {
     const pending = takePendingAdd();
     if (pending && isAuthed() && pending.source === "products-page") {
@@ -104,18 +103,21 @@ export default function ProductsPage() {
     }
   }, [add, nav]);
 
-  // 👇 guard add-to-cart
+  // guard add-to-cart
   const guardAdd = (line: {
-    id: string; name: string; image: string;
-    unitPriceIndividual: number; unitPriceBulk: number;
-    qty: number; mode: "individual" | "bulk";
+    id: string;
+    name: string;
+    image: string;
+    unitPriceIndividual: number;
+    unitPriceBulk: number;
+    qty: number;
+    mode: "individual" | "bulk";
   }) => {
     if (isAuthed()) {
       add(line);
       nav("/cart");
       return;
     }
-    // not logged in → stash and go to auth
     stashPendingAdd({
       line,
       returnTo: loc.pathname + loc.search,
@@ -128,7 +130,6 @@ export default function ProductsPage() {
     <>
       <Header />
 
-      {/* spacer prevents fixed header overlap on mobile */}
       <div className="pp-header-spacer" aria-hidden />
 
       <main className="pp-page">
@@ -173,43 +174,59 @@ export default function ProductsPage() {
         <header className="pp-head">
           <h2 className="pp-head-title">Our Best Seller</h2>
           <nav className="pp-tabbar" aria-label="Catalog filters">
-            <button className={`pp-tab ${tab === "new" ? "active" : ""}`}  onClick={() => setTab("new")}>New Arrivals</button>
-            <button className={`pp-tab ${tab === "best" ? "active" : ""}`} onClick={() => setTab("best")}>Best Sellers</button>
-            <button className={`pp-tab ${tab === "top" ? "active" : ""}`}  onClick={() => setTab("top")}>Top Rated</button>
+            <button className={`pp-tab ${tab === "new" ? "active" : ""}`} onClick={() => setTab("new")}>
+              New Arrivals
+            </button>
+            <button className={`pp-tab ${tab === "best" ? "active" : ""}`} onClick={() => setTab("best")}>
+              Best Sellers
+            </button>
+            <button className={`pp-tab ${tab === "top" ? "active" : ""}`} onClick={() => setTab("top")}>
+              Top Rated
+            </button>
           </nav>
         </header>
 
         {/* Catalog */}
         <section id="pp-catalog" className="pp-catalog">
           <div className="pp-grid">
-            {list.map((p: any) => (
-              <CatalogCard
-                key={p.id}
-                id={p.id}
-                name={p.name}
-                image={p.image}
-                priceIndividual={p.priceIndividual}
-                priceBulk={p.priceBulk}
-                blurb={p.blurb}
-                onAdd={(qty, mode) => {
-                  const line = {
-                    id: p.id,
-                    name: p.name,
-                    image: p.image,
-                    unitPriceIndividual: p.priceIndividual,
-                    unitPriceBulk: p.priceBulk,
-                    qty,
-                    mode,
-                  };
-                  guardAdd(line); // 👈 use guard
-                }}
-              />
-            ))}
+            {list.map((p: any) => {
+  // 👇 If tab is "new", mark everything new
+  const isNewTagged =
+    tab === "new" ||
+    ((p.badges || p.tags || []) as string[])
+      .map((t) => String(t).toLowerCase())
+      .some((t) => t === "new" || t === "new arrival" || t === "new-arrival");
+
+  return (
+    <CatalogCard
+      key={p.id}
+      id={p.id}
+      name={p.name}
+      image={p.image}
+      priceIndividual={p.priceIndividual}
+      priceBulk={p.priceBulk}
+      blurb={p.blurb}
+      isNew={isNewTagged}   // 👈 every product in New Arrivals tab will show NEW ribbon
+      onAdd={(qty, mode) => {
+        const line = {
+          id: p.id,
+          name: p.name,
+          image: p.image,
+          unitPriceIndividual: p.priceIndividual,
+          unitPriceBulk: p.priceBulk,
+          qty,
+          mode,
+        };
+        guardAdd(line);
+      }}
+    />
+  );
+})}
+
           </div>
         </section>
       </main>
 
-      {/* Wrap footer for Products-only overrides */}
       <div className="pp-footer-override">
         <Footer />
       </div>
@@ -225,6 +242,7 @@ function CatalogCard(props: {
   priceIndividual: number;
   priceBulk: number;
   blurb?: string;
+  isNew?: boolean;
   onAdd: (qty: number, mode: "individual" | "bulk") => void;
 }) {
   const [qty, setQty] = React.useState<number>(1);
@@ -233,18 +251,24 @@ function CatalogCard(props: {
 
   return (
     <article className="pp-card">
+      {props.isNew && <div className="pp-ribbon">NEW</div>}
+
       <div className="pp-card-media">
         <img src={props.image} alt={props.name} draggable={false} />
       </div>
 
       <div className="pp-card-pod">
-        <button className="pp-qty-btn" aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))}>–</button>
+        <button className="pp-qty-btn" aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))}>
+          –
+        </button>
         <span className="pp-qty">{qty}</span>
-        <button className="pp-qty-btn" aria-label="Increase quantity" onClick={() => setQty((q) => Math.min(9999, q + 1))}>+</button>
+        <button className="pp-qty-btn" aria-label="Increase quantity" onClick={() => setQty((q) => Math.min(9999, q + 1))}>
+          +
+        </button>
 
         <button className="pp-cart-btn" aria-label="Add to Cart" onClick={() => props.onAdd(qty, mode)} title="Add to cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M7 4h-2l-1 2h2l3.6 7.59-1.35 2.45A1.994 1.994 0 0 0 10 19h9v-2h-8.42c-.14 0-.25-.11-.25-.25l.03-.12L11.1 14h5.45a2 2 0 0 0 1.8-1.11l3.58-7.16A1 1 0 0 0 21 4H7z"/>
+            <path d="M7 4h-2l-1 2h2l3.6 7.59-1.35 2.45A1.994 1.994 0 0 0 10 19h9v-2h-8.42c-.14 0-.25-.11-.25-.25l.03-.12L11.1 14h5.45a2 2 0 0 0 1.8-1.11l3.58-7.16A1 1 0 0 0 21 4H7z" />
           </svg>
         </button>
       </div>
@@ -253,8 +277,12 @@ function CatalogCard(props: {
         <h3 className="pp-card-name">{props.name}</h3>
         {props.blurb && <p className="pp-card-blurb">{props.blurb}</p>}
         <div className="pp-mode">
-          <button className={`pp-pill ${mode === "individual" ? "active" : ""}`} onClick={() => setMode("individual")}>Individual</button>
-          <button className={`pp-pill ${mode === "bulk" ? "active" : ""}`} onClick={() => setMode("bulk")}>Bulk</button>
+          <button className={`pp-pill ${mode === "individual" ? "active" : ""}`} onClick={() => setMode("individual")}>
+            Individual
+          </button>
+          <button className={`pp-pill ${mode === "bulk" ? "active" : ""}`} onClick={() => setMode("bulk")}>
+            Bulk
+          </button>
         </div>
         <div className="pp-price">${unit.toFixed(2)}</div>
       </div>

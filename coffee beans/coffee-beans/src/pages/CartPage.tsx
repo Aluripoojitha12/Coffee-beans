@@ -16,6 +16,46 @@ import "./cart.css";
 type DeliveryMode = "delivery" | "pickup";
 type TipPreset = 0 | 2 | 4 | 7;
 
+/* ============================
+   Tiny inline coffee icons (SVG)
+   ============================ */
+type IconProps = { className?: string };
+const BeanIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 64 64" className={className} aria-hidden focusable="false">
+    <ellipse cx="22" cy="24" rx="10" ry="14" fill="none" stroke="currentColor" strokeWidth="3" />
+    <ellipse cx="42" cy="22" rx="10" ry="14" fill="none" stroke="currentColor" strokeWidth="3" />
+    <ellipse cx="32" cy="40" rx="10" ry="14" fill="none" stroke="currentColor" strokeWidth="3" />
+  </svg>
+);
+const LeafIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 64 64" className={className} aria-hidden focusable="false">
+    <path d="M10 46c20-2 32-14 42-34-2 18-10 40-34 42-6 1-10-2-8-8z" fill="none" stroke="currentColor" strokeWidth="3" />
+    <path d="M20 44c6-8 16-14 28-18" fill="none" stroke="currentColor" strokeWidth="3" />
+  </svg>
+);
+const MugIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 64 64" className={className} aria-hidden focusable="false">
+    <rect x="12" y="18" width="30" height="28" rx="6" fill="none" stroke="currentColor" strokeWidth="3" />
+    <path d="M42 24h6a7 7 0 0 1 0 14h-6" fill="none" stroke="currentColor" strokeWidth="3" />
+    <path d="M20 14c-2 2-2 4 0 6M28 14c-2 2-2 4 0 6M36 14c-2 2-2 4 0 6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+  </svg>
+);
+const BagIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 64 64" className={className} aria-hidden focusable="false">
+    <rect x="12" y="20" width="40" height="32" rx="6" fill="none" stroke="currentColor" strokeWidth="3" />
+    <path d="M22 20a10 10 0 0 1 20 0" fill="none" stroke="currentColor" strokeWidth="3" />
+    <circle cx="24" cy="36" r="3" fill="currentColor" />
+    <circle cx="40" cy="36" r="3" fill="currentColor" />
+    <path d="M32 44c-4 0-7 2-8 4" fill="none" stroke="currentColor" strokeWidth="3" />
+  </svg>
+);
+const ReturnIcon = ({ className }: IconProps) => (
+  <svg viewBox="0 0 64 64" className={className} aria-hidden focusable="false">
+    <path d="M18 26l-8 8 8 8" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M54 42c0-10-8-18-18-18H10" fill="none" stroke="currentColor" strokeWidth="3" />
+  </svg>
+);
+
 export default function CartPage() {
   const {
     lines,
@@ -28,7 +68,7 @@ export default function CartPage() {
     clearCoupon,
   } = useCart();
 
-  const isEmpty = lines.length === 0; // 👈 NEW: drives hide/show of right sidebar
+  const isEmpty = lines.length === 0; // 👈 drives hide/show of right sidebar
 
   // --- UI state (right column) ---
   const [couponInput, setCouponInput] = useState("");
@@ -198,6 +238,10 @@ export default function CartPage() {
 
             {lines.length === 0 ? (
               <div className="cart-empty">
+                {/* 👇 NEW decorative beans badge */}
+                <span className="icon-badge icon-xl beans-badge" aria-hidden>
+                  <BeanIcon />
+                </span>
                 <p>Your cart is empty.</p>
                 {/* <Link to="/products" className="btn start-shopping">Start Shopping</Link> */}
               </div>
@@ -307,6 +351,10 @@ export default function CartPage() {
             {isEmpty ? (
               // 👇 When cart is empty, hide checkout details and show a light prompt instead
               <section className="panel sidebar-empty">
+                {/* NEW decorative mug badge */}
+                <span className="icon-badge icon-xl mug-badge" aria-hidden>
+                  <MugIcon />
+                </span>
                 <h3 className="panel-title">Nothing to checkout (yet!)</h3>
                 <p className="muted">
                   Add some beans to see delivery options, coupons, totals, and checkout here.
@@ -513,16 +561,31 @@ export default function CartPage() {
         {/* bottom features bar */}
         <div className="cart-features">
           <div className="feat">
-            <div className="feat-title">Gift Cards</div>
-            <p>Perfect for coffee lovers.</p>
+            <span className="feat-icon-badge">
+              <BagIcon />
+            </span>
+            <div>
+              <div className="feat-title">Gift Cards</div>
+              <p>Perfect for coffee lovers.</p>
+            </div>
           </div>
           <div className="feat">
-            <div className="feat-title">Freshly Roasted</div>
-            <p>Small-batch roasts, delivered quickly.</p>
+            <span className="feat-icon-badge">
+              <LeafIcon />
+            </span>
+            <div>
+              <div className="feat-title">Freshly Roasted</div>
+              <p>Small-batch roasts, delivered quickly.</p>
+            </div>
           </div>
           <div className="feat">
-            <div className="feat-title">Easy Returns</div>
-            <p>No-fuss returns within 7 days.</p>
+            <span className="feat-icon-badge">
+              <ReturnIcon />
+            </span>
+            <div>
+              <div className="feat-title">Easy Returns</div>
+              <p>No-fuss returns within 7 days.</p>
+            </div>
           </div>
         </div>
       </main>

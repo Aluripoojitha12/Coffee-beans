@@ -370,3 +370,39 @@
 @media (min-width: 1280px) {
   .pp-grid { gap: 20px; }
 }
+
+/* ---------- CARD ---------- */
+.pp-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.pp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  border-color: #ddd;
+}
+
+/* ---------- NEW ribbon (diagonal) ---------- */
+.pp-ribbon {
+  position: absolute;
+  top: 12px;
+  right: -40px;
+  width: 120px;
+  text-align: center;
+  background: #d32f2f; /* red */
+  color: #fff;
+  font-size: clamp(0.65rem, 1.2vw, 0.8rem);
+  font-weight: 800;
+  padding: 4px 0;
+  text-transform: uppercase;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
